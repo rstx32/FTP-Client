@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <head>
   <title>FTP Images List</title>
   <style>
@@ -12,15 +13,8 @@
     }
   </style>
 </head>
-<body>
-  <!-- <h2>FTP file list</h2>
-  <input type="text" id="addr" placeholder="Server Address" value="localhost"></input>
-  <input type="text" id="port" placeholder="Server Port" value="21"></input>
-  <input type="text" id="uname" placeholder="Ftp Username" value="rstx"></input>
-  <input type="text" id="paswd" placeholder="Ftp Password" value="9927"></input>
-  <input type="text" id="path" placeholder="Ftp Path" value="/Jateng/2019/02/20/"></input>
-  <p onclick="sendData();">Submit</p> -->
 
+<body>
   <h2>FTP file list</h2>
   <center>
     <table>
@@ -28,7 +22,7 @@
         <td>FTP Server</td>
         <td>:</td>
         <td>
-            <input type="text" id="addr" placeholder="Server Address" value="127.0.0.1"></input>
+          <input type="text" id="addr" placeholder="Server Address" value="127.0.0.1"></input>
         </td>
       </tr>
       <tr>
@@ -42,65 +36,71 @@
         <td>Username</td>
         <td>:</td>
         <td>
-            <input type="text" id="uname" placeholder="Ftp Username" value="rstx"></input>
+          <input type="text" id="uname" placeholder="Ftp Username" value="rstx"></input>
         </td>
       </tr>
       <tr>
         <td>Password</td>
         <td>:</td>
         <td>
-            <input type="text" id="paswd" placeholder="Ftp Password" value="9927"></input>
+          <input type="text" id="paswd" placeholder="Ftp Password" value="9927"></input>
         </td>
       </tr>
       <tr>
         <td>Path</td>
         <td>:</td>
         <td>
-          <input type="text" id="path" placeholder="Ftp Path" value="/Jateng/2019/02/20/"></input>
+          <input type="text" id="path" placeholder="Ftp Path" value="Jateng"></input>
         </td>
       </tr>
         <td></td>
         <td></td>
         <td style="text-align: left">
           <button onclick="sendData();">Submit</button>
-        </td>
+        </td> 
       </tr>
     </table>
   </center>
 
   <div id="mycoba2"></div>
   <a href="download.html">Download</a>
-  
+
 
   <script>
-    const { ipcRenderer } = require('electron');
+    const {
+      ipcRenderer
+    } = require('electron');
     const mycoba = document.getElementById('mycoba2');
-    var addr, port, uname, paswd, arrInput,path;
+    var addr, port, uname, paswd, arrInput, path;
 
-    function sendData(){
+    function sendData() {
+      // masuk folder
+      var folder = "/" + document.getElementById('path').value + "/";
+      path = folder;
+      console.log(path);
       addr = document.getElementById('addr').value;
       port = document.getElementById('port').value;
       uname = document.getElementById('uname').value;
       paswd = document.getElementById('paswd').value;
-      path = document.getElementById('path').value;
+      //path = document.getElementById('path').value;
       arrInput = [addr, port, uname, paswd, path];
 
-      var show="<table style=\"width:100%\">";
+      var show = "<table style=\"width:100%\">";
       var mydata = ipcRenderer.sendSync('arrMsg', arrInput);
-      show=show + '<tr>';
-      show=show + '<th>' + 'File' + '</td>';
-      show=show + '<th>' + 'Tanggal' + '</td>';
-      show=show + '<th>' + 'Size' + '</td>';
+      show = show + '<tr>';
+      show = show + '<th>' + 'File' + '</td>';
+      show = show + '<th>' + 'Tanggal' + '</td>';
+      show = show + '<th>' + 'Size' + '</td>';
       show = show + '</tr>';
-      for(i=0; i<mydata.length; i++){
-          show=show + '<tr>';
-          show=show + '<td>' + mydata[i].name + '</td>';
-          show=show + '<td>' + mydata[i].date + '</td>';
-          show=show + '<td>' + mydata[i].size + '</td>';
-          show=show + '</tr>';
-          }
-        show=show + "</table>";
-        mycoba.innerHTML = show;
+      for (i = 0; i < mydata.length; i++) {
+        show = show + '<tr>';
+        show = show + '<td>' + mydata[i].name + '</td>';
+        show = show + '<td>' + mydata[i].date + '</td>';
+        show = show + '<td>' + mydata[i].size + '</td>';
+        show = show + '</tr>';
+      }
+      show = show + "</table>";
+      mycoba.innerHTML = show;
     }
   </script>
 </body>
