@@ -47,12 +47,6 @@
             <input type="text" id="paswd" placeholder="Ftp Password" value="9927"></input>
           </td>
         </tr>
-        <tr>
-          <td>Path</td>
-          <td>:</td>
-          <td>
-            <input type="text" id="path" placeholder="Ftp Path" value="/Jateng/2019/02/20/"></input>
-          </td>
       </form>
     </table>
   </center>
@@ -88,7 +82,7 @@
           <td>Tanggal Mulai</td>
           <td>:</td>
           <td>
-            <input type="date" name="tanggal mulai" id="tgl_mulai" value="2019-02-20"></input>
+            <input type="date" name="tanggal mulai" id="tgl_mulai" value="2019-09-20"></input>
           </td>
         </tr>
         <tr>
@@ -102,7 +96,7 @@
           <td>Tanggal Selesai</td>
           <td>:</td>
           <td>
-            <input type="date" name="tanggal selesai" id="tgl_selesai"></input>
+            <input type="date" name="tanggal selesai" id="tgl_selesai" value="2019-09-22"></input>
           </td>
         </tr>
         <tr>
@@ -132,7 +126,7 @@
     var addr, port, uname, paswd, arrInput, path;
 
     function sendData() {
-      
+
 
       // mengambil wilayah
       var wilayah = document.getElementById('wilayah');
@@ -141,12 +135,12 @@
       // mulai
       var tgl_mulai = new Date(document.getElementById('tgl_mulai').value);
       var mulai_tahun = tgl_mulai.getFullYear();
-      var mulai_bulan = ('0' + (tgl_mulai.getMonth()+1)).slice(-2);
+      var mulai_bulan = ('0' + (tgl_mulai.getMonth() + 1)).slice(-2);
       var mulai_tgl = ('0' + tgl_mulai.getDate()).slice(-2);
       // berakhir
       var tgl_selesai = new Date(document.getElementById('tgl_selesai').value);
       var selesai_tahun = tgl_selesai.getFullYear();
-      var selesai_bulan = ('0' + (tgl_selesai.getMonth()+1)).slice(-2);
+      var selesai_bulan = ('0' + (tgl_selesai.getMonth() + 1)).slice(-2);
       var selesai_tgl = ('0' + tgl_selesai.getDate()).slice(-2);
 
       // mengambil waktu
@@ -164,8 +158,26 @@
       }
 
       // masuk folder
-      var folder = "/" + document.getElementById('wilayah').value + "/" + mulai_tahun + "/" + mulai_bulan + "/" + mulai_tgl + "/";
-      path = folder;
+      var path = "/" + document.getElementById('wilayah').value + "/" + mulai_tahun + "/" + mulai_bulan + "/" + mulai_tgl + "/";
+
+      // untuk loop masuk folder
+      // var tgl_jalan = tgl_mulai;
+      // var tambah1 = 0;
+      // while (jalan_tahun <= selesai_tahun) {
+      //   var tambah2 = 0;
+      //   while (jalan_bulan <= selesai_bulan) {
+      //     var tambah3 = 0;
+      //     while (jalan_tgl <= selesai_tgl) {
+      //       var jalan_tgl = ('0' + (tgl_jalan.getDate() + tambah3)).slice(-2);
+      //       var path = "/" + document.getElementById('wilayah').value + "/" + jalan_tahun + "/" + jalan_bulan + "/" + jalan_tgl + "/";
+      //       tambah3++;
+      //     }
+      //     var jalan_bulan = ('0' + ((tgl_jalan.getMonth() + tambah2) + 1)).slice(-2);
+      //     tambah2++;
+      //   }
+      //   var jalan_tahun = tgl_jalan.getFullYear() + tambah1;
+      //   tambah1++;
+      // }
 
       // mengambil value dari input
       addr = document.getElementById('addr').value;
@@ -199,6 +211,7 @@
           mycoba.innerHTML = mydataa;
         }
       }
+
     }
   </script>
 </body>
