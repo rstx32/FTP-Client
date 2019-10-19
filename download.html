@@ -1,27 +1,29 @@
 <!DOCTYPE html>
+
 <head>
-    <title>FTP Images Download</title>
-    <style>
+  <title>FTP Images Download</title>
+  <style>
     body {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 20px;
-        font-family: sans-serif;
-        background-color: #eaeaea;
-        text-align: center;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 20px;
+      font-family: sans-serif;
+      background-color: #eaeaea;
+      text-align: center;
     }
-    </style>
+  </style>
 </head>
+
 <body>
   <h2>FTP download</h2>
   <center>
-      <table>
-        <form>
+    <table>
+      <form>
         <tr>
           <td>FTP Server</td>
           <td>:</td>
           <td>
-              <input type="text" id="addr" placeholder="Server Address" value="127.0.0.1"></input>
+            <input type="text" id="addr" placeholder="Server Address" value="127.0.0.1"></input>
           </td>
         </tr>
         <tr>
@@ -35,14 +37,14 @@
           <td>Username</td>
           <td>:</td>
           <td>
-              <input type="text" id="uname" placeholder="Ftp Username" value="rstx"></input>
+            <input type="text" id="uname" placeholder="Ftp Username" value="rstx"></input>
           </td>
         </tr>
         <tr>
           <td>Password</td>
           <td>:</td>
           <td>
-              <input type="text" id="paswd" placeholder="Ftp Password" value="9927"></input>
+            <input type="text" id="paswd" placeholder="Ftp Password" value="9927"></input>
           </td>
         </tr>
         <tr>
@@ -51,26 +53,26 @@
           <td>
             <input type="text" id="path" placeholder="Ftp Path" value="/Jateng/2019/02/20/"></input>
           </td>
-        </form>
-      </table>
-    </center>
+      </form>
+    </table>
+  </center>
   <br>
 
   <center>
-      <table>
-        <form>
+    <table>
+      <form>
         <tr>
           <td>Wilayah</td>
           <td>:</td>
           <td>
-            <input type="text" id="wilayah" placeholder="Masukan Wilayah"></input>
+            <input type="text" id="wilayah" placeholder="Masukan Wilayah" value="Jateng"></input>
           </td>
         </tr>
         <tr>
           <td>Tipe File</td>
           <td>:</td>
           <td>
-            <input type="checkbox" name="File EH" value="EH" class="cek">File EH</input>
+            <input type="checkbox" name="File EH" value="EH" class="cek" checked>File EH</input>
             <input type="checkbox" name="File RP" value="RP" class="cek">File RP</input>
           </td>
         </tr>
@@ -86,7 +88,7 @@
           <td>Tanggal Mulai</td>
           <td>:</td>
           <td>
-            <input type="date" name="tanggal mulai" id="tgl_mulai"></input>
+            <input type="date" name="tanggal mulai" id="tgl_mulai" value="2019-02-20"></input>
           </td>
         </tr>
         <tr>
@@ -117,69 +119,81 @@
             <button onclick="sendData();">Download</button>
           </td>
         </tr>
-      </table>
+    </table>
     </form>
-    </center>
-    <div id="mycoba2">---</div>
+  </center>
+  <div id="mycoba2">---</div>
 
-  <script>    
-    const { ipcRenderer } = require('electron');
+  <script>
+    const {
+      ipcRenderer
+    } = require('electron');
     const mycoba = document.getElementById('mycoba2');
     var addr, port, uname, paswd, arrInput, path;
 
-    function sendData(){
-      // mengambil value dari input
-      addr = document.getElementById('addr').value;
-      port = document.getElementById('port').value;
-      uname = document.getElementById('uname').value;
-      paswd = document.getElementById('paswd').value;
-      path = document.getElementById('path').value;
-      arrInput = [addr, port, uname, paswd, path];
-
-      // mengirim data ke index.js
-      var mydata = ipcRenderer.sendSync('arrMsg', arrInput);
+    function sendData() {
+      
 
       // mengambil wilayah
       var wilayah = document.getElementById('wilayah');
 
       // mengambil tanggal
-      var tgl_mulai = document.getElementById('tgl_mulai');
-      var tgl_selesai = document.getElementById('tgl_selesai');
+      // mulai
+      var tgl_mulai = new Date(document.getElementById('tgl_mulai').value);
+      var mulai_tahun = tgl_mulai.getFullYear();
+      var mulai_bulan = ('0' + (tgl_mulai.getMonth()+1)).slice(-2);
+      var mulai_tgl = ('0' + tgl_mulai.getDate()).slice(-2);
+      // berakhir
+      var tgl_selesai = new Date(document.getElementById('tgl_selesai').value);
+      var selesai_tahun = tgl_selesai.getFullYear();
+      var selesai_bulan = ('0' + (tgl_selesai.getMonth()+1)).slice(-2);
+      var selesai_tgl = ('0' + tgl_selesai.getDate()).slice(-2);
 
       // mengambil waktu
-      var wkt_mulai = document.getElementById('wkt_mulai');
-      var wkt_berakhir = document.getElementById('wkt_berakhir');
+      var wkt_mulai = document.getElementById('wkt_mulai').value;
+      var wkt_berakhir = document.getElementById('wkt_berakhir').value;
 
       // mengambil nilai checkbox
       var tipefile = document.getElementsByClassName('cek');
-      var hasil=[];
-      for(i=0,j=0; i<tipefile.length; i++){
-        if(tipefile[i].checked){
+      var hasil = [];
+      for (i = 0, j = 0; i < tipefile.length; i++) {
+        if (tipefile[i].checked) {
           hasil[j] = tipefile[i].value;
           j++;
         }
       }
 
       // masuk folder
-      
-      
+      var folder = "/" + document.getElementById('wilayah').value + "/" + mulai_tahun + "/" + mulai_bulan + "/" + mulai_tgl + "/";
+      path = folder;
+
+      // mengambil value dari input
+      addr = document.getElementById('addr').value;
+      port = document.getElementById('port').value;
+      uname = document.getElementById('uname').value;
+      paswd = document.getElementById('paswd').value;
+      arrInput = [addr, port, uname, paswd, path];
+
+      // mengirim data ke index.js
+      var mydata = ipcRenderer.sendSync('arrMsg', arrInput);
+
       // loop untuk mendownload file satu per satu
-      for(i=0; i<mydata.length; i++){
+      for (i = 0; i < mydata.length; i++) {
         filedl = mydata[i].name;
         // kondisi jika nama file mengandung salah satu nilai dari checkbox
-        if(filedl.includes(hasil[0])){
+        if (filedl.includes(hasil[0])) {
           aarrInput = [addr, port, uname, paswd, path, filedl];
           var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
           mycoba.innerHTML = mydataa;
-        }else if(filedl.includes(hasil[1])){
+        } else if (filedl.includes(hasil[1])) {
           aarrInput = [addr, port, uname, paswd, path, filedl];
           var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
           mycoba.innerHTML = mydataa;
-        }else if(filedl.includes(hasil[2])){
+        } else if (filedl.includes(hasil[2])) {
           aarrInput = [addr, port, uname, paswd, path, filedl];
           var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
           mycoba.innerHTML = mydataa;
-        }else if(filedl.includes(hasil[3])){
+        } else if (filedl.includes(hasil[3])) {
           aarrInput = [addr, port, uname, paswd, path, filedl];
           var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
           mycoba.innerHTML = mydataa;
