@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<head>
+    <title>Coba Coba</title>
+    <style>
+    body {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 20px;
+        font-family: sans-serif;
+        background-color: #eaeaea;
+        text-align: center;
+    }
+    </style>
+</head>
+<body>
+  <h2>FTP download</h2>
+  <center>
+      <table>
+        <form>
+        <tr>
+          <td>FTP Server</td>
+          <td>:</td>
+          <td>
+              <input type="text" id="addr" placeholder="Server Address" value="127.0.0.1"></input>
+          </td>
+        </tr>
+        <tr>
+          <td>FTP Port</td>
+          <td>:</td>
+          <td>
+            <input type="text" id="port" value="21" placeholder="Port"></input>
+          </td>
+        </tr>
+        <tr>
+          <td>Username</td>
+          <td>:</td>
+          <td>
+              <input type="text" id="uname" placeholder="Ftp Username" value="rstx"></input>
+          </td>
+        </tr>
+        <tr>
+          <td>Password</td>
+          <td>:</td>
+          <td>
+              <input type="text" id="paswd" placeholder="Ftp Password" value="9927"></input>
+          </td>
+        </tr>
+        <tr>
+          <td>Path</td>
+          <td>:</td>
+          <td>
+            <input type="text" id="path" placeholder="Ftp Path" value="/Jateng/2019/02/20/"></input>
+          </td>
+        </form>
+      </table>
+    </center>
+  <br>
+
+  <center>
+      <table>
+        <form>
+        <tr>
+          <td>Wilayah</td>
+          <td>:</td>
+          <td>
+            <input type="text" id="wilayah" placeholder="Masukan Wilayah"></input>
+          </td>
+        </tr>
+        <tr>
+          <td>Tipe File</td>
+          <td>:</td>
+          <td>
+            <input type="checkbox" name="File EH" value="EH" class="cek">File EH</input>
+            <input type="checkbox" name="File RP" value="RP" class="cek">File RP</input>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td>
+            <input type="checkbox" name="File NC" value="NC" class="cek">File NC</input>
+            <input type="checkbox" name="File SW" value="SW" class="cek">File SW</input>
+          </td>
+        </tr>
+        <tr>
+          <td>Tanggal Mulai</td>
+          <td>:</td>
+          <td>
+            <input type="date" name="tanggal mulai" id="tgl_mulai"></input>
+          </td>
+        </tr>
+        <tr>
+          <td>Waktu Mulai</td>
+          <td>:</td>
+          <td>
+            <input type="time" name="waktu mulai" id="wkt_mulai"></input>
+          </td>
+        </tr>
+        <tr>
+          <td>Tanggal Selesai</td>
+          <td>:</td>
+          <td>
+            <input type="date" name="tanggal selesai" id="tgl_selesai"></input>
+          </td>
+        </tr>
+        <tr>
+          <td>Waktu Berakhir</td>
+          <td>:</td>
+          <td>
+            <input type="time" name="waktu berakhir" id="wkt_berakhir"></input>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td>
+            <button onclick="sendData();">Download</button>
+          </td>
+        </tr>
+      </table>
+    </form>
+    </center>
+    <div id="mycoba2">---</div>
+
+  <script>    
+    const { ipcRenderer } = require('electron');
+    const mycoba = document.getElementById('mycoba2');
+    var addr, port, uname, paswd, arrInput, path;
+
+    function sendData(){
+      // mengambil value dari input
+      addr = document.getElementById('addr').value;
+      port = document.getElementById('port').value;
+      uname = document.getElementById('uname').value;
+      paswd = document.getElementById('paswd').value;
+      path = document.getElementById('path').value;
+      arrInput = [addr, port, uname, paswd, path];
+
+      // mengirim data ke index.js
+      var mydata = ipcRenderer.sendSync('arrMsg', arrInput);
+
+      // mengambil wilayah
+      var wilayah = document.getElementById('wilayah');
+
+      // mengambil tanggal
+      var tgl_mulai = document.getElementById('tgl_mulai');
+      var tgl_selesai = document.getElementById('tgl_selesai');
+
+      // mengambil waktu
+      var wkt_mulai = document.getElementById('wkt_mulai');
+      var wkt_berakhir = document.getElementById('wkt_berakhir');
+
+      // mengambil nilai checkbox
+      var tipefile = document.getElementsByClassName('cek');
+      var hasil=[];
+      for(i=0,j=0; i<tipefile.length; i++){
+        if(tipefile[i].checked){
+          hasil[j] = tipefile[i].value;
+          j++;
+        }
+      }
+
+      // masuk folder
+
+      
+      // loop untuk mendownload file satu per satu
+      for(i=0; i<mydata.length; i++){
+        filedl = mydata[i].name;
+        // kondisi jika nama file mengandung salah satu nilai dari checkbox
+        if(filedl.includes(hasil[0])){
+          aarrInput = [addr, port, uname, paswd, path, filedl];
+          var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
+          mycoba.innerHTML = mydataa;
+        }else if(filedl.includes(hasil[1])){
+          aarrInput = [addr, port, uname, paswd, path, filedl];
+          var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
+          mycoba.innerHTML = mydataa;
+        }else if(filedl.includes(hasil[2])){
+          aarrInput = [addr, port, uname, paswd, path, filedl];
+          var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
+          mycoba.innerHTML = mydataa;
+        }else if(filedl.includes(hasil[3])){
+          aarrInput = [addr, port, uname, paswd, path, filedl];
+          var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
+          mycoba.innerHTML = mydataa;
+        }
+      }
+    }
+  </script>
+</body>

@@ -1,0 +1,21 @@
+{
+  "name": "FTP",
+  "version": "1.0.0",
+  "description": "FTP for images download",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "coba": "node coba.js"
+  },
+  "author": "doscom",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^6.0.10",
+    "electron-builder": "^21.2.0"
+  },
+  "dependencies": {
+    "electron-updater": "^4.1.2",
+    "ftp": "^0.3.10"
+  }
+}
