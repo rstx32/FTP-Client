@@ -1,8 +1,12 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  ipcMain
+} = require('electron');
 
 let mainWindow;
 
-function createWindow () {
+function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -34,17 +38,17 @@ app.on('activate', function () {
 
 
 //============================================= list data
-ipcMain.on('arrMsg',(event, arg) => {
-  console.log('index ' + arg);
+ipcMain.on('arrMsg', (event, arg) => {
+  //console.log('index ' + arg);
   var Client = require('ftp');
   var c = new Client();
-  c.on('ready', function() {
-    c.list("/Jateng",function(err, list) {
+  c.on('ready', function () {
+    c.list(arg[4], function (err, list) {
       if (err) throw (err);
       //console.log(list);
       event.returnValue = list
-      console.log(list[0].name);
-    c.end();
+      //console.log(list[0].name);
+      c.end();
     });
   });
   // connect to server
@@ -58,16 +62,18 @@ ipcMain.on('arrMsg',(event, arg) => {
 });
 
 //============================================= download files
-ipcMain.on('arrDlMsg',(event,arg) => {
+ipcMain.on('arrDlMsg', (event, arg) => {
   console.log('dl ' + arg);
   var Client = require('ftp');
   var fs = require('fs');
 
   var c = new Client();
-  c.on('ready', function() {
-    c.get(arg[4]+arg[5], function(err, stream) {
+  c.on('ready', function () {
+    c.get(arg[4] + arg[5], function (err, stream) {
       if (err) throw err;
-      stream.once('close', function() { c.end(); });
+      stream.once('close', function () {
+        c.end();
+      });
       stream.pipe(fs.createWriteStream(arg[5]));
       event.returnValue = 'done!';
     });
@@ -82,4 +88,3 @@ ipcMain.on('arrDlMsg',(event,arg) => {
 
 
 //https://github.com/mscdex/node-ftp
-
