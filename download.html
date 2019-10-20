@@ -37,14 +37,14 @@
           <td>Username</td>
           <td>:</td>
           <td>
-            <input type="text" id="uname" placeholder="Ftp Username" value="rstx"></input>
+            <input type="text" id="uname" placeholder="Ftp Username" value="admin"></input>
           </td>
         </tr>
         <tr>
           <td>Password</td>
           <td>:</td>
           <td>
-            <input type="text" id="paswd" placeholder="Ftp Password" value="9927"></input>
+            <input type="text" id="paswd" placeholder="Ftp Password" value="1234"></input>
           </td>
         </tr>
       </form>
@@ -66,23 +66,23 @@
           <td>Tipe File</td>
           <td>:</td>
           <td>
-            <input type="checkbox" name="File EH" value="EH" class="cek" checked>File EH</input>
-            <input type="checkbox" name="File RP" value="RP" class="cek">File RP</input>
+            <input type="checkbox" name="File EH" value="_EH_" class="cek" checked>File EH</input>
+            <input type="checkbox" name="File RP" value="_RP_" class="cek">File RP</input>
           </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
           <td>
-            <input type="checkbox" name="File NC" value="NC" class="cek">File NC</input>
-            <input type="checkbox" name="File SW" value="SW" class="cek">File SW</input>
+            <input type="checkbox" name="File NC" value="_NC_" class="cek">File NC</input>
+            <input type="checkbox" name="File SW" value="_SW_" class="cek">File SW</input>
           </td>
         </tr>
         <tr>
           <td>Tanggal Mulai</td>
           <td>:</td>
           <td>
-            <input type="date" name="tanggal mulai" id="tgl_mulai" value="2019-09-20"></input>
+            <input type="date" name="tanggal mulai" id="tgl_mulai" value="2019-02-20"></input>
           </td>
         </tr>
         <tr>
@@ -96,7 +96,7 @@
           <td>Tanggal Selesai</td>
           <td>:</td>
           <td>
-            <input type="date" name="tanggal selesai" id="tgl_selesai" value="2019-09-22"></input>
+            <input type="date" name="tanggal selesai" id="tgl_selesai" value="2019-02-27"></input>
           </td>
         </tr>
         <tr>
@@ -119,17 +119,23 @@
   <div id="mycoba2">---</div>
 
   <script>
-    const {
-      ipcRenderer
-    } = require('electron');
+    const { ipcRenderer } = require('electron');
+    const moment = require('moment');
     const mycoba = document.getElementById('mycoba2');
-    var addr, port, uname, paswd, arrInput, path;
+
+    //DEBUG ONLY
+    const con = require('electron').remote.getGlobal('console')
 
     function sendData() {
 
+      // mengambil login info dari form
+      var addr = document.getElementById('addr').value;
+      var port = document.getElementById('port').value;
+      var uname = document.getElementById('uname').value;
+      var paswd = document.getElementById('paswd').value;
 
       // mengambil wilayah
-      var wilayah = document.getElementById('wilayah');
+      var wilayah = document.getElementById('wilayah').value;
 
       // mengambil tanggal
       // mulai
@@ -148,11 +154,11 @@
       var wkt_berakhir = document.getElementById('wkt_berakhir').value;
 
       // mengambil nilai checkbox
-      var tipefile = document.getElementsByClassName('cek');
-      var hasil = [];
-      for (i = 0, j = 0; i < tipefile.length; i++) {
-        if (tipefile[i].checked) {
-          hasil[j] = tipefile[i].value;
+      var iptTipeFile = document.getElementsByClassName('cek');
+      var tipeFile = [];
+      for (i = 0, j = 0; i < iptTipeFile.length; i++) {
+        if (iptTipeFile[i].checked) {
+          tipeFile[j] = iptTipeFile[i].value;
           j++;
         }
       }
@@ -160,57 +166,55 @@
       // masuk folder
       var path = "/" + document.getElementById('wilayah').value + "/" + mulai_tahun + "/" + mulai_bulan + "/" + mulai_tgl + "/";
 
-      // untuk loop masuk folder
-      // var tgl_jalan = tgl_mulai;
-      // var tambah1 = 0;
-      // while (jalan_tahun <= selesai_tahun) {
-      //   var tambah2 = 0;
-      //   while (jalan_bulan <= selesai_bulan) {
-      //     var tambah3 = 0;
-      //     while (jalan_tgl <= selesai_tgl) {
-      //       var jalan_tgl = ('0' + (tgl_jalan.getDate() + tambah3)).slice(-2);
-      //       var path = "/" + document.getElementById('wilayah').value + "/" + jalan_tahun + "/" + jalan_bulan + "/" + jalan_tgl + "/";
-      //       tambah3++;
-      //     }
-      //     var jalan_bulan = ('0' + ((tgl_jalan.getMonth() + tambah2) + 1)).slice(-2);
-      //     tambah2++;
-      //   }
-      //   var jalan_tahun = tgl_jalan.getFullYear() + tambah1;
-      //   tambah1++;
-      // }
+      // get data seluruh range tanggal lewat api
+      var dateStartStop = [ tgl_mulai, tgl_selesai];
+      var arrOfDate = ipcRenderer.sendSync('arrDateRange', dateStartStop);
+      // alert(moment(arrOfDate[0]).format("MM/DD/YYYY"));
 
-      // mengambil value dari input
-      addr = document.getElementById('addr').value;
-      port = document.getElementById('port').value;
-      uname = document.getElementById('uname').value;
-      paswd = document.getElementById('paswd').value;
-      arrInput = [addr, port, uname, paswd, path];
+      // get list seluruh file yang ada dalam range dan simpan di arrOfFiles
+      var arrOfFilePaths = new Array();
+      var arrOfFileName = new Array();
+      var mydata;
+      for(i=0; i<arrOfDate.length; i++){
+        var formattedDate =  '/' + wilayah + '/' + moment(arrOfDate[i]).format("YYYY/MM/DD");
+        arrInput = [addr, port, uname, paswd, formattedDate];
+        mydata = ipcRenderer.sendSync('arrMsg', arrInput);
+        if(mydata != 0){
+          //con.log(mydata);
+          for(y=0; y<mydata.length; y++){
+            arrOfFilePaths.push(formattedDate + '/' + mydata[y].name);
+            arrOfFileName.push(mydata[y].name);
+          }
+        }
+      }
+      //con.log(arrOfFilePaths);
+      
 
-      // mengirim data ke index.js
-      var mydata = ipcRenderer.sendSync('arrMsg', arrInput);
-
-      // loop untuk mendownload file satu per satu
-      for (i = 0; i < mydata.length; i++) {
-        filedl = mydata[i].name;
-        // kondisi jika nama file mengandung salah satu nilai dari checkbox
-        if (filedl.includes(hasil[0])) {
-          aarrInput = [addr, port, uname, paswd, path, filedl];
+      // loop untuk mendownload file seluruh file dari arrOfFiles
+      for (i = 0; i < arrOfFilePaths.length; i++) {
+        // kondisi jika `nama file` mengandung salah satu nilai dari `tipe file`
+        if (arrOfFilePaths[i].includes(tipeFile[0])) {
+          aarrInput = [addr, port, uname, paswd, arrOfFilePaths[i], arrOfFileName[i]];
           var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
           mycoba.innerHTML = mydataa;
-        } else if (filedl.includes(hasil[1])) {
-          aarrInput = [addr, port, uname, paswd, path, filedl];
+
+        } else if (arrOfFilePaths[i].includes(tipeFile[1])) {
+          aarrInput = [addr, port, uname, paswd, arrOfFilePaths[i], arrOfFileName[i]];
           var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
           mycoba.innerHTML = mydataa;
-        } else if (filedl.includes(hasil[2])) {
-          aarrInput = [addr, port, uname, paswd, path, filedl];
+
+        } else if (arrOfFilePaths[i].includes(tipeFile[2])) {
+          aarrInput = [addr, port, uname, paswd, arrOfFilePaths[i], arrOfFileName[i]];
           var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
           mycoba.innerHTML = mydataa;
-        } else if (filedl.includes(hasil[3])) {
-          aarrInput = [addr, port, uname, paswd, path, filedl];
+
+        } else if (arrOfFilePaths[i].includes(tipeFile[3])) {
+          aarrInput = [addr, port, uname, paswd, arrOfFilePaths[i], arrOfFileName[i]];
           var mydataa = ipcRenderer.sendSync('arrDlMsg', aarrInput);
           mycoba.innerHTML = mydataa;
         }
       }
+      
 
     }
   </script>

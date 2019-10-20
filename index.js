@@ -3,7 +3,7 @@ const {
   BrowserWindow,
   ipcMain
 } = require('electron');
-
+const moment = require('moment');
 let mainWindow;
 
 function createWindow() {
@@ -14,7 +14,7 @@ function createWindow() {
       nodeIntegration: true,
     },
   });
-  mainWindow.loadFile('index.html');
+  mainWindow.loadFile('download.html');
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
@@ -36,18 +36,22 @@ app.on('activate', function () {
   }
 });
 
-
 //============================================= list data
 ipcMain.on('arrMsg', (event, arg) => {
   //console.log('index ' + arg);
+  console.log(arg[4]);
   var Client = require('ftp');
   var c = new Client();
   c.on('ready', function () {
     c.list(arg[4], function (err, list) {
-      if (err) throw (err);
-      //console.log(list);
-      event.returnValue = list
-      //console.log(list[0].name);
+      //if (err) throw (err);
+      if (err) {
+        console.log(err);
+        event.returnValue = 0;
+      } else {
+        console.log(list[0].name);
+        event.returnValue = list;
+      }
       c.end();
     });
   });
@@ -59,6 +63,7 @@ ipcMain.on('arrMsg', (event, arg) => {
     password: arg[3],
     //debug: console.log
   });
+  
 });
 
 //============================================= download files
@@ -69,13 +74,13 @@ ipcMain.on('arrDlMsg', (event, arg) => {
 
   var c = new Client();
   c.on('ready', function () {
-    c.get(arg[4] + arg[5], function (err, stream) {
-      if (err) throw err;
+    c.get(arg[4], function (err, stream) {
+      //if (err) throw err;
+      if (err) console.log(err);
       stream.once('close', function () {
         c.end();
       });
       stream.pipe(fs.createWriteStream(arg[5]));
-      event.returnValue = 'done!';
     });
   });
   c.connect({
@@ -84,7 +89,19 @@ ipcMain.on('arrDlMsg', (event, arg) => {
     user: arg[2],
     password: arg[3],
   });
+  event.returnValue = 'done!';
 });
 
+ipcMain.on('arrDateRange', (event, arg) => {
+  var dateArray = [];
+  var currentDate = moment(arg[0]);
+  var stopDate = moment(arg[1]);
+  while (currentDate <= stopDate) {
+      dateArray.push( moment(currentDate).format('YYYY/MM/DD') )
+      currentDate = moment(currentDate).add(1, 'days');
+  }
+  console.log(dateArray);
+  event.returnValue = dateArray;
+});
 
 //https://github.com/mscdex/node-ftp
