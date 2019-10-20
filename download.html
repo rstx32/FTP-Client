@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-  <title>FTP Images Download</title>
+  <title>Satelite Images Downloader</title>
   <style>
     body {
       box-sizing: border-box;
@@ -15,7 +15,7 @@
 </head>
 
 <body>
-  <h2>FTP download</h2>
+  <h2>Satelite Images Downloader</h2>
   <center>
     <table>
       <form>
@@ -89,7 +89,7 @@
           <td>Waktu Mulai</td>
           <td>:</td>
           <td>
-            <input type="time" name="waktu mulai" id="wkt_mulai"></input>
+            <input type="time" name="waktu mulai" id="wkt_mulai" value="00:00"></input>
           </td>
         </tr>
         <tr>
@@ -103,7 +103,7 @@
           <td>Waktu Berakhir</td>
           <td>:</td>
           <td>
-            <input type="time" name="waktu berakhir" id="wkt_berakhir"></input>
+            <input type="time" name="waktu berakhir" id="wkt_berakhir" value="07:00"></input>
           </td>
         </tr>
         <tr>
@@ -140,18 +140,22 @@
       // mengambil tanggal
       // mulai
       var tgl_mulai = new Date(document.getElementById('tgl_mulai').value);
-      var mulai_tahun = tgl_mulai.getFullYear();
-      var mulai_bulan = ('0' + (tgl_mulai.getMonth() + 1)).slice(-2);
-      var mulai_tgl = ('0' + tgl_mulai.getDate()).slice(-2);
       // berakhir
       var tgl_selesai = new Date(document.getElementById('tgl_selesai').value);
-      var selesai_tahun = tgl_selesai.getFullYear();
-      var selesai_bulan = ('0' + (tgl_selesai.getMonth() + 1)).slice(-2);
-      var selesai_tgl = ('0' + tgl_selesai.getDate()).slice(-2);
 
       // mengambil waktu
+      // waktu mulai
       var wkt_mulai = document.getElementById('wkt_mulai').value;
+      // konvert waktu ke ke menit
+      var wkt_mulai_arr = wkt_mulai.split(':');
+      var iptWktMulai = wkt_mulai_arr[0]*60 + wkt_mulai_arr[1]*1;
+      // waktu akhir
       var wkt_berakhir = document.getElementById('wkt_berakhir').value;
+      // konvert waktu ke ke menit
+      var wkt_mulai_arr = wkt_berakhir.split(':');
+      var iptWaktuAkhir = wkt_mulai_arr[0]*60 + wkt_mulai_arr[1]*1;
+      //con.log(iptWktMulai);
+      //con.log(iptWaktuAkhir);
 
       // mengambil nilai checkbox
       var iptTipeFile = document.getElementsByClassName('cek');
@@ -163,9 +167,6 @@
         }
       }
 
-      // masuk folder
-      var path = "/" + document.getElementById('wilayah').value + "/" + mulai_tahun + "/" + mulai_bulan + "/" + mulai_tgl + "/";
-
       // get data seluruh range tanggal lewat api
       var dateStartStop = [ tgl_mulai, tgl_selesai];
       var arrOfDate = ipcRenderer.sendSync('arrDateRange', dateStartStop);
@@ -174,22 +175,25 @@
       // get list seluruh file yang ada dalam range dan simpan di arrOfFiles
       var arrOfFilePaths = new Array();
       var arrOfFileName = new Array();
-      var mydata;
+      var mydata, fileTime;
       for(i=0; i<arrOfDate.length; i++){
         var formattedDate =  '/' + wilayah + '/' + moment(arrOfDate[i]).format("YYYY/MM/DD");
         arrInput = [addr, port, uname, paswd, formattedDate];
         mydata = ipcRenderer.sendSync('arrMsg', arrInput);
+        // jika data tidak null/nol
         if(mydata != 0){
-          //con.log(mydata);
           for(y=0; y<mydata.length; y++){
-            arrOfFilePaths.push(formattedDate + '/' + mydata[y].name);
-            arrOfFileName.push(mydata[y].name);
+            // hanya push data yang berada dalam time range
+            if(getFileTime(mydata[y].name) >= iptWktMulai &&
+            getFileTime(mydata[y].name) <= iptWaktuAkhir){
+              arrOfFilePaths.push(formattedDate + '/' + mydata[y].name);
+              arrOfFileName.push(mydata[y].name);
+            }
           }
         }
       }
       //con.log(arrOfFilePaths);
       
-
       // loop untuk mendownload file seluruh file dari arrOfFiles
       for (i = 0; i < arrOfFilePaths.length; i++) {
         // kondisi jika `nama file` mengandung salah satu nilai dari `tipe file`
@@ -214,8 +218,17 @@
           mycoba.innerHTML = mydataa;
         }
       }
-      
+      alert('done!');
+    }
 
+    // get waktu dalam filename return menit
+    function getFileTime(FileName){
+      var fileTime = FileName.split("_");
+      fileTime = fileTime[3].split('.');
+      fileTime = fileTime[0].substring(fileTime[0].length-4,fileTime[0].length);
+      var fileJam = fileTime.substring(0,2);
+      var fileMin = fileTime.substring(2,fileTime.length);
+      return fileJam*60+fileMin*1;
     }
   </script>
 </body>
