@@ -39,21 +39,30 @@ app.on('activate', function () {
 //============================================= list data
 ipcMain.on('arrMsg', (event, arg) => {
   //console.log('index ' + arg);
-  console.log(arg[4]);
+  //console.log(arg[4]);
   var Client = require('ftp');
   var c = new Client();
   c.on('ready', function () {
     c.list(arg[4], function (err, list) {
       //if (err) throw (err);
       if (err) {
-        console.log(err);
+        console.log('ERROR : ' + arg[4] + ' ' + err.message);
         event.returnValue = 0;
       } else {
-        console.log(list[0].name);
+        //console.log(list[0].name);
         event.returnValue = list;
       }
       c.end();
     });
+  });
+  // caught error
+  c.on('error', function(err){
+    const { dialog } = require('electron')
+    dialog.showMessageBox(mainWindow, {
+      type: 'error',
+      message: err.message,
+    });
+    mainWindow.reload();
   });
   // connect to server
   c.connect({
@@ -63,7 +72,6 @@ ipcMain.on('arrMsg', (event, arg) => {
     password: arg[3],
     //debug: console.log
   });
-  
 });
 
 //============================================= download files
