@@ -79,7 +79,6 @@ ipcMain.on('arrDlMsg', (event, arg) => {
   console.log('dl ' + arg);
   var Client = require('ftp');
   var fs = require('fs');
-
   var c = new Client();
   c.on('ready', function () {
     c.get(arg[4], function (err, stream) {
@@ -100,6 +99,7 @@ ipcMain.on('arrDlMsg', (event, arg) => {
   event.returnValue = 'done!';
 });
 
+//============================================= array data range 
 ipcMain.on('arrDateRange', (event, arg) => {
   var dateArray = [];
   var currentDate = moment(arg[0]);
