@@ -106,26 +106,33 @@
             <input type="time" name="waktu berakhir" id="wkt_berakhir" value="07:00"></input>
           </td>
         </tr>
+    </table>
+    <div id="mycoba2">---</div>
+    <br>
+    <table>
         <tr>
-          <td></td>
-          <td></td>
-          <td>
-            <button onclick="sendData();">Download</button>
-          </td>
-        </tr>
+            <td style="text-align: right">
+              <button onclick="setDownload();">Browse</button>
+            </td>
+            <td></td>
+            <td>
+              <button onclick="sendData();">Download</button>
+            </td>
+          </tr>
     </table>
     </form>
   </center>
-  <div id="mycoba2">---</div>
+  
 
   <script>
     const { ipcRenderer } = require('electron');
     const moment = require('moment');
     const mycoba = document.getElementById('mycoba2');
+    mycoba2.innerHTML = ipcRenderer.sendSync('getDlPath');
 
     //DEBUG ONLY
-    const con = require('electron').remote.getGlobal('console')
-
+    const con = require('electron').remote.getGlobal('console');
+    
     function sendData() {
 
       // mengambil login info dari form
@@ -229,6 +236,11 @@
       var fileJam = fileTime.substring(0,2);
       var fileMin = fileTime.substring(2,fileTime.length);
       return fileJam*60+fileMin*1;
+    }
+
+    //set download path
+    function setDownload(){
+      var globalDownloadPath = ipcRenderer.sendSync('setDownloadPath', "OK");
     }
   </script>
 </body>

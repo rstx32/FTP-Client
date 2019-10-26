@@ -36,6 +36,49 @@ app.on('activate', function () {
   }
 });
 
+//============================================= get download path
+var promise = new Promise((resolve, reject) => {
+  const exec = require('child_process').exec;
+  exec('echo %HOMEDRIVE%%HOMEPATH%\\Downloads',
+      (error, stdout, stderr) => {
+          resolve(stdout)
+          //console.log(`stdout: ${stdout}`);
+          //console.log(`stderr: ${stderr}`);
+          path = stdout;
+          if (error !== null) {
+              console.log(`exec error: ${error}`);
+          }
+  });
+});
+promise.then(function(value) {
+  console.log(value);
+  GlobalDownloadPath = value.replace(/\r?\n|\r/, ''); //REMOVE NEWLINE CHAR
+});
+
+//============================================= download path selector
+ipcMain.on('setDownloadPath', (event) =>{
+  const { dialog } = require('electron');
+  dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory']
+  }).then(result => {
+    if(result.canceled){
+      event.returnValue = GlobalDownloadPath;
+    }else{
+      GlobalDownloadPath = result.filePaths;
+      event.returnValue = result.filePaths;
+    }
+    //console.log(result.canceled)
+    //console.log(result.filePaths)
+  }).catch(err => {
+    console.log(err)
+  });
+});
+
+//============================================= show download path to render
+ipcMain.on('getDlPath',(event) => {
+  event.returnValue = GlobalDownloadPath;
+});
+
 //============================================= list data
 ipcMain.on('arrMsg', (event, arg) => {
   //console.log('index ' + arg);
@@ -87,7 +130,10 @@ ipcMain.on('arrDlMsg', (event, arg) => {
       stream.once('close', function () {
         c.end();
       });
-      stream.pipe(fs.createWriteStream(arg[5]));
+      //var file = GlobalDownloadPath + '\\' + arg[5];
+      var file = GlobalDownloadPath + '\\' + arg[5];
+      console.log(file);
+      stream.pipe(fs.createWriteStream(file));
     });
   });
   c.connect({
@@ -99,7 +145,7 @@ ipcMain.on('arrDlMsg', (event, arg) => {
   event.returnValue = 'done!';
 });
 
-//============================================= array data range 
+//============================================= array date range 
 ipcMain.on('arrDateRange', (event, arg) => {
   var dateArray = [];
   var currentDate = moment(arg[0]);
@@ -113,3 +159,4 @@ ipcMain.on('arrDateRange', (event, arg) => {
 });
 
 //https://github.com/mscdex/node-ftp
+//https://www.christianengvall.se/electron-packager-tutorial/
